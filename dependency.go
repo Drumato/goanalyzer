@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-const doc = "dependencyanalyzer is ..."
+const dependencyAnalyzerDocument = "dependencyanalyzer is ..."
 
 var (
 
@@ -17,12 +17,12 @@ var (
 	// DependencyAnalyzer is ...
 	DependencyAnalyzer = &analysis.Analyzer{
 		Name: "dependencyanalyzer",
-		Doc:  doc,
-		Run:  run,
+		Doc:  dependencyAnalyzerDocument,
+		Run:  analyzeDependency,
 	}
 )
 
-func run(pass *analysis.Pass) (interface{}, error) {
+func analyzeDependency(pass *analysis.Pass) (interface{}, error) {
 	graph      := make(map[string]map[string]bool)
 	stdPkgs, err := packages.Load(nil, "std")
 

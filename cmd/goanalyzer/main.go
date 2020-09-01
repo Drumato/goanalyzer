@@ -1,10 +1,16 @@
 package main
 
 import (
-"goanalyzer"
-"golang.org/x/tools/go/analysis/unitchecker"
+	"goanalyzer"
+	"golang.org/x/tools/go/analysis"
+	"golang.org/x/tools/go/analysis/unitchecker"
 )
 
-func main() { unitchecker.Main(goanalyzer.DependencyAnalyzer) }
+func main() {
+	analyzers := []*analysis.Analyzer{
+		goanalyzer.DependencyAnalyzer,
+		goanalyzer.LazyScopeAnalyzer,
+	}
+	unitchecker.Main(analyzers...) }
 
 

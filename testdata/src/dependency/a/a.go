@@ -1,6 +1,6 @@
 package a // want "analyze finished"
 
-import "b"
+import "dependency/b"
 
 func f() {
 	var _ = b.Zero()
