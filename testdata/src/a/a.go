@@ -1,8 +1,8 @@
-package a
+package a // want "analyze finished"
 
-import "fmt"
+import "b"
 
 func f() {
-	fmt.Println(1)
+	var _ = b.Zero()
 }
 

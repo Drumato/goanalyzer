@@ -18,7 +18,8 @@ DOT言語を生成してGraphvizで可視化する．
 ```
 # using go build
 go build ./cmd/goanalyzer
-go vet -vettool="$(pwd -P)/goanalyzer.exe" <go-package>
+mv goanalyzer.exe ../../bin/
+go vet -vettool="$(which goanalyzer)" <go-package>
 
 go test ./...
 ```
