@@ -1,7 +1,7 @@
 package main
 
 import (
-	"goanalyzer"
+	"github.com/Drumato/goanalyzer"
 	"golang.org/x/tools/go/analysis"
 	"golang.org/x/tools/go/analysis/unitchecker"
 )
@@ -11,6 +11,7 @@ func main() {
 		goanalyzer.DependencyAnalyzer,
 		goanalyzer.LazyToplevelAnalyzer,
 		goanalyzer.LazyIdentifierScopeAnalyzer,
+		goanalyzer.UndefinedUnitTestAnalyzer,
 	}
 
 	unitchecker.Main(analyzers...)

@@ -7,7 +7,7 @@ package main
 import (
 	"strings"
 
-	"goanalyzer"
+	"github.com/Drumato/goanalyzer"
 	"golang.org/x/tools/go/analysis"
 )
 
@@ -33,5 +33,6 @@ func (analyzerPlugin) GetAnalyzers() []*analysis.Analyzer {
 		goanalyzer.DependencyAnalyzer,
 		goanalyzer.LazyToplevelAnalyzer,
 		goanalyzer.LazyIdentifierScopeAnalyzer,
+		goanalyzer.UndefinedUnitTestAnalyzer,
 	}
 }

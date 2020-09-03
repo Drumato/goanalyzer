@@ -1,7 +1,7 @@
 package goanalyzer_test
 
 import (
-	"goanalyzer"
+	"github.com/Drumato/goanalyzer"
 	"testing"
 
 	"golang.org/x/tools/go/analysis/analysistest"

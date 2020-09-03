@@ -69,6 +69,11 @@ func recursiveVisitPkgImports(graph map[string]map[string]bool, pkg *packages.Pa
 			continue
 		}
 
+		// 枝刈り
+		if _, exist := graph[importPkgName]; exist{
+			continue
+		}
+
 		if _, ok := graph[pkgName]; !ok {
 			graph[pkgName] = make(map[string]bool)
 		}
