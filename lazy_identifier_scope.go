@@ -18,10 +18,10 @@ var (
 		Run:      detectLazyIdentifierScope,
 		Requires: []*analysis.Analyzer{inspect.Analyzer},
 	}
-	defsIdentifiers = make(map[string]*localVar)
+	identifierDefs = make(map[string]*defInfo)
 )
 
-type localVar struct {
+type defInfo struct {
 	base types.Object
 	// 定義されたスコープ
 	scope *types.Scope
@@ -30,45 +30,37 @@ type localVar struct {
 }
 
 func detectLazyIdentifierScope(pass *analysis.Pass) (interface{}, error) {
-	// トップレベル以下のスコープに対し，再帰関数を適用する．
-	// これにより，各スコープで定義された識別子情報を構築できる．
-	pkgScope := pass.Pkg.Scope()
-
-	for fnScopeIdx := 0; fnScopeIdx < pkgScope.NumChildren(); fnScopeIdx++ {
-		fnScope := pkgScope.Child(fnScopeIdx)
-
-		recursiveVisitScope(pass, fnScope)
-	}
-
-	// 識別子の使用場所を探索．
-	// 参照スコープの情報を埋める
+	// 識別子について探索
 	inspect := pass.ResultOf[inspect.Analyzer].(*inspector.Inspector)
 
 	inspect.Preorder([]ast.Node{new(ast.Ident)}, func(n ast.Node) {
-
-		// TODO: ここで識別子の使用位置がどのスコープに含まれているか取りたい，が取れない．
+		//識別子の使用位置がどのスコープに含まれているか
 		if id, ok := n.(*ast.Ident); ok {
-			_, exist := defsIdentifiers[id.Name]
-			if exist {
-				// fmt.Println(entry.base.Parent())
+			// 定義位置の取得
+			def, defined := pass.TypesInfo.Defs[id]
+			if def != nil && defined {
+				_, isFn := def.Type().(*types.Signature)
+				if isFn {
+					return
+				}
+
+				identifierDefs[id.Name] = &defInfo{base: def, scope: def.Parent(), refs: make([]*types.Scope, 0)}
+				return
+			}
+
+			_, defined = identifierDefs[id.Name]
+			if defined {
+				identifierDefs[id.Name].refs = append(identifierDefs[id.Name].refs, pass.Pkg.Scope().Innermost(id.Pos()))
 			}
 		}
 	})
 
-	// TODO: 参照スコープが定義箇所より内側かつ一つのスコープからの参照であれば検出とする
+	// 参照スコープが定義箇所より内側かつ一つのスコープからの参照であれば検出とする
+	for _, id := range identifierDefs {
+		if len(id.refs) == 1 && id.refs[0] != id.scope {
+			pass.Reportf(id.base.Pos(), "This identifier is only referenced in a scope so should move the declaration to it")
+		}
+	}
 
 	return nil, nil
-}
-
-func recursiveVisitScope(pass *analysis.Pass, outer *types.Scope){
-	// 外側のスコープで定義された識別子を取得する
-	for _, idName := range outer.Names(){
-		obj := outer.Lookup(idName)
-		defsIdentifiers[idName] = &localVar{base: obj, scope: outer, refs: make([]*types.Scope, 0)}
-	}
-
-	for innerScopeIdx := 0; innerScopeIdx < outer.NumChildren(); innerScopeIdx++ {
-		innerScope := outer.Child(innerScopeIdx)
-		recursiveVisitScope(pass, innerScope)
-	}
 }

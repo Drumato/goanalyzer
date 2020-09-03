@@ -7,7 +7,7 @@ var (
 )
 
 const (
-	strGC1 string = "A"// OK
+	strGC1 string = "A" // OK
 )
 
 type strGT1 string   // OK
