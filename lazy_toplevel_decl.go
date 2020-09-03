@@ -16,10 +16,10 @@ var (
 		Doc:      lazyToplevelDoc,
 		Run:      detectLazyToplevelDecls,
 	}
-	idRefCounter map[string]*identifier
+	idRefCounter map[string]*topLevelDecl
 )
 
-type identifier struct {
+type topLevelDecl struct {
 	// 参照回数．identifier を参照する手続きの数を数える
 	refCount int
 	p        token.Pos
@@ -29,7 +29,7 @@ type identifier struct {
 
 func detectLazyToplevelDecls(pass *analysis.Pass) (interface{}, error) {
 	// トップレベル宣言をチェックし，辞書を構築する
-	idRefCounter = make(map[string]*identifier)
+	idRefCounter = make(map[string]*topLevelDecl)
 	pkgScope := pass.Pkg.Scope()
 	correctTopLevelDeclarations(pkgScope)
 
@@ -66,7 +66,7 @@ func correctTopLevelDeclarations(pkgScope *types.Scope) {
 		pkgVar := pkgScope.Lookup(pkgVarName)
 		if !pkgVar.Exported() {
 			if _, ok := pkgVar.Type().(*types.Signature); !ok {
-				idRefCounter[pkgVar.Name()] = &identifier{p: pkgVar.Pos()}
+				idRefCounter[pkgVar.Name()] = &topLevelDecl{p: pkgVar.Pos()}
 			}
 		}
 	}

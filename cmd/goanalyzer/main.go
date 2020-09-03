@@ -10,6 +10,7 @@ func main() {
 	analyzers := []*analysis.Analyzer{
 		goanalyzer.DependencyAnalyzer,
 		goanalyzer.LazyToplevelAnalyzer,
+		goanalyzer.LazyIdentifierScopeAnalyzer,
 	}
 	unitchecker.Main(analyzers...)
 }
