@@ -7,11 +7,16 @@ import (
 	"golang.org/x/tools/go/analysis/analysistest"
 )
 
-// TestLazyScopeAnalyzer is a test for LazyScopeAnalyzer.
-func TestLazyScopeAnalyzer(t *testing.T) {
+// TestLazyToplevelAnalyzer is a test for LazyToplevelAnalyzer.
+func TestLazyToplevelAnalyzer(t *testing.T) {
+	tests := []string{"lazy_toplevel_decl/a", "lazy_toplevel_decl/fp", "lazy_toplevel_decl/multiref", "lazy_toplevel_decl/samepkg"}
 	testdata := analysistest.TestData()
-	analysistest.Run(t, testdata, goanalyzer.LazyToplevelAnalyzer, "lazy_toplevel_decl/a")
-	analysistest.Run(t, testdata, goanalyzer.LazyToplevelAnalyzer, "lazy_toplevel_decl/fp")
-	analysistest.Run(t, testdata, goanalyzer.LazyToplevelAnalyzer, "lazy_toplevel_decl/multiref")
-	analysistest.Run(t, testdata, goanalyzer.LazyToplevelAnalyzer, "lazy_toplevel_decl/samepkg")
+
+	for _, tt := range tests{
+		tt := tt
+		t.Run(tt, func (t *testing.T) {
+			t.Parallel()
+			analysistest.Run(t, testdata, goanalyzer.LazyToplevelAnalyzer, tt)
+		})
+	}
 }

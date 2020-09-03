@@ -9,9 +9,14 @@ import (
 
 // TestLazyIdentifierScopeAnalyzer is a test for LazyIdentifierScopeAnalyzer.
 func TestLazyIdentifierScopeAnalyzer(t *testing.T) {
+	tests := []string{"lazy_ident_scope/a", "lazy_ident_scope/nested",  "lazy_ident_scope/closure"}
 	testdata := analysistest.TestData()
 
-	analysistest.Run(t, testdata, goanalyzer.LazyIdentifierScopeAnalyzer, "lazy_ident_scope/a")
-
-	analysistest.Run(t, testdata, goanalyzer.LazyIdentifierScopeAnalyzer, "lazy_ident_scope/nested")
+	for _, tt := range tests{
+		tt := tt
+		t.Run(tt, func (t *testing.T) {
+			t.Parallel()
+			analysistest.Run(t, testdata, goanalyzer.LazyIdentifierScopeAnalyzer, tt)
+		})
+	}
 }

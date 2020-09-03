@@ -18,7 +18,7 @@ var (
 		Run:      detectLazyIdentifierScope,
 		Requires: []*analysis.Analyzer{inspect.Analyzer},
 	}
-	identifierDefs = make(map[string]*defInfo)
+	identifierDefs map[string]*defInfo
 )
 
 type defInfo struct {
@@ -30,6 +30,8 @@ type defInfo struct {
 }
 
 func detectLazyIdentifierScope(pass *analysis.Pass) (interface{}, error) {
+	identifierDefs = make(map[string]*defInfo)
+
 	// 識別子について探索
 	inspect := pass.ResultOf[inspect.Analyzer].(*inspector.Inspector)
 

@@ -20,9 +20,10 @@ DOT言語を生成してGraphvizで可視化する．
 
 ```
 # using go build
-go build ./cmd/goanalyzer
-mv goanalyzer.exe ../../bin/
+go build -o goanalyzer ./cmd/goanalyzer
+mv goanalyzer "$GOPATH/bin"
 go vet -vettool="$(which goanalyzer)" <go-package>
 
+# test
 go test ./...
 ```

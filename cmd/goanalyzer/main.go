@@ -12,5 +12,6 @@ func main() {
 		goanalyzer.LazyToplevelAnalyzer,
 		goanalyzer.LazyIdentifierScopeAnalyzer,
 	}
+
 	unitchecker.Main(analyzers...)
 }
