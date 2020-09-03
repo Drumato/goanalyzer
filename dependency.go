@@ -12,8 +12,7 @@ import (
 const dependencyAnalyzerDocument = "dependencyanalyzer is ..."
 
 var (
-
-    standardPackages = make(map[string]bool)
+	standardPackages = make(map[string]bool)
 	// DependencyAnalyzer is ...
 	DependencyAnalyzer = &analysis.Analyzer{
 		Name: "dependencyanalyzer",
@@ -23,7 +22,7 @@ var (
 )
 
 func analyzeDependency(pass *analysis.Pass) (interface{}, error) {
-	graph      := make(map[string]map[string]bool)
+	graph := make(map[string]map[string]bool)
 	stdPkgs, err := packages.Load(nil, "std")
 
 	if err != nil {
@@ -36,7 +35,7 @@ func analyzeDependency(pass *analysis.Pass) (interface{}, error) {
 
 	for _, f := range pass.Files {
 		initial, err := packages.Load(&packages.Config{
-			Mode:  packages.NeedName | packages.NeedImports | packages.NeedDeps | packages.NeedTypes | packages.NeedSyntax,
+			Mode:  packages.NeedName | packages.NeedImports,
 			Dir:   path.Dir(f.Name.Name),
 			Tests: true,
 		})
@@ -52,7 +51,7 @@ func analyzeDependency(pass *analysis.Pass) (interface{}, error) {
 			return nil, err
 		}
 
-		pass.Reportf(f.Pos(), "analyze finished")
+		pass.Reportf(f.Pos(), "dependency analyze finished")
 	}
 
 	return nil, nil

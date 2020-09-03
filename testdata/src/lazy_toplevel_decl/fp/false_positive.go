@@ -13,11 +13,11 @@ const (
 
 const strGC2 string = "A" // OK
 
-type strGT1 string // OK
+type strGT1 string   // OK
 type strGT2 = string // OK
 
 type (
-	strGT3 string // OK
+	strGT3 string   // OK
 	strGT4 = string // OK
 )
 

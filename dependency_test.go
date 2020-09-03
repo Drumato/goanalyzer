@@ -12,4 +12,3 @@ func TestDependencyAnalyzer(t *testing.T) {
 	testdata := analysistest.TestData()
 	analysistest.Run(t, testdata, goanalyzer.DependencyAnalyzer, "dependency/a")
 }
-

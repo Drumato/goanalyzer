@@ -31,7 +31,6 @@ func (analyzerPlugin) GetAnalyzers() []*analysis.Analyzer {
 	}
 	return []*analysis.Analyzer{
 		goanalyzer.DependencyAnalyzer,
-		goanalyzer.LazyScopeAnalyzer,
+		goanalyzer.LazyToplevelAnalyzer,
 	}
 }
-

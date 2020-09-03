@@ -9,8 +9,7 @@ import (
 func main() {
 	analyzers := []*analysis.Analyzer{
 		goanalyzer.DependencyAnalyzer,
-		goanalyzer.LazyScopeAnalyzer,
+		goanalyzer.LazyToplevelAnalyzer,
 	}
-	unitchecker.Main(analyzers...) }
-
-
+	unitchecker.Main(analyzers...)
+}

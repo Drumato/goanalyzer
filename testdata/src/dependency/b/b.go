@@ -1,5 +1,5 @@
 package b
 
-func Zero() int{
+func Zero() int {
 	return 0
 }
