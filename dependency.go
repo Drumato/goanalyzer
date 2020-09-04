@@ -12,7 +12,6 @@ import (
 const dependencyAnalyzerDocument = "dependencyanalyzer is ..."
 
 var (
-	standardPackages = make(map[string]bool)
 	// DependencyAnalyzer is ...
 	DependencyAnalyzer = &analysis.Analyzer{
 		Name: "dependencyanalyzer",
@@ -21,17 +20,26 @@ var (
 	}
 )
 
-func analyzeDependency(pass *analysis.Pass) (interface{}, error) {
-	graph := make(map[string]map[string]bool)
+func prepareStandardPackages() (map[string]bool, error) {
 	stdPkgs, err := packages.Load(nil, "std")
+	if err != nil {
+		return nil, err
+	}
+	standardPackages := make(map[string]bool)
+	for _, stdPkg := range stdPkgs {
+		standardPackages[stdPkg.PkgPath] = true
+	}
+	return standardPackages, nil
+}
 
+func analyzeDependency(pass *analysis.Pass) (interface{}, error) {
+	// 依存グラフに標準ライブラリを含めるとすごいことになってしまうので，含めない
+	standardPackages, err := prepareStandardPackages()
 	if err != nil {
 		return nil, err
 	}
 
-	for _, stdPkg := range stdPkgs {
-		standardPackages[stdPkg.PkgPath] = true
-	}
+	graph := make(map[string]map[string]bool)
 
 	for _, f := range pass.Files {
 		initial, err := packages.Load(&packages.Config{
@@ -44,7 +52,7 @@ func analyzeDependency(pass *analysis.Pass) (interface{}, error) {
 		}
 
 		for _, pkg := range initial {
-			recursiveVisitPkgImports(graph, pkg)
+			recursiveVisitPkgImports(graph, standardPackages, pkg)
 		}
 
 		if err := renderDOTProgram(graph); err != nil {
@@ -57,19 +65,20 @@ func analyzeDependency(pass *analysis.Pass) (interface{}, error) {
 	return nil, nil
 }
 
-func recursiveVisitPkgImports(graph map[string]map[string]bool, pkg *packages.Package) {
+func recursiveVisitPkgImports(graph map[string]map[string]bool, standardPackages map[string]bool, pkg *packages.Package) {
 	pkgName := pkg.PkgPath
-	if isStd := standardPackages[pkgName]; isStd {
-		return
-	}
 
+	// 依存パッケージをすべて探索
 	for _, importedPkg := range pkg.Imports {
 		importPkgName := importedPkg.PkgPath
+
+		// 標準パッケージならば無視する
 		if isStd := standardPackages[importPkgName]; isStd {
 			continue
 		}
 
 		// 枝刈り
+		// 既に探索したパッケージならば登録されているので，探索しない
 		if _, exist := graph[importPkgName]; exist{
 			continue
 		}
@@ -79,7 +88,7 @@ func recursiveVisitPkgImports(graph map[string]map[string]bool, pkg *packages.Pa
 		}
 		graph[pkgName][importPkgName] = true
 
-		recursiveVisitPkgImports(graph, importedPkg)
+		recursiveVisitPkgImports(graph, standardPackages, importedPkg)
 	}
 	return
 }

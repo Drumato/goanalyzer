@@ -22,6 +22,8 @@ DOT言語を生成してGraphvizで可視化する．
 
 ## How to use
 
+### as a binary
+
 ```
 # using go build
 go build -o goanalyzer ./cmd/goanalyzer

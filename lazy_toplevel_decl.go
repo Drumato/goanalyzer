@@ -19,7 +19,6 @@ var (
 		Run:  detectLazyToplevelDecls,
 		Requires: []*analysis.Analyzer{inspect.Analyzer},
 	}
-	idRefCounter map[string]*topLevelDecl
 )
 
 type topLevelDecl struct {
@@ -31,7 +30,7 @@ type topLevelDecl struct {
 }
 
 func detectLazyToplevelDecls(pass *analysis.Pass) (interface{}, error) {
-	idRefCounter = make(map[string]*topLevelDecl)
+	idRefCounter := make(map[types.Object]*topLevelDecl)
 	pkgScope := pass.Pkg.Scope()
 
 	inspect := pass.ResultOf[inspect.Analyzer].(*inspector.Inspector)
@@ -43,27 +42,14 @@ func detectLazyToplevelDecls(pass *analysis.Pass) (interface{}, error) {
 				return
 			}
 
-			// 定義位置の取得
-			def := pkgScope.Lookup(id.Name)
-			if def != nil {
-				use, used := pass.TypesInfo.Uses[id]
-				_, isFn := def.Type().(*types.Signature)
-				if isFn {
-					return
-				}
-				if use == nil || !used {
-					// 定義情報の格納
-					idRefCounter[id.Name] = &topLevelDecl{p: def.Pos()}
-					return
-				}
-
-				// 参照カウントの更新
-				useScope := pass.Pkg.Scope().Innermost(id.Pos())
-				if entry, exist := idRefCounter[id.Name]; exist && entry.refBy != useScope {
-					idRefCounter[id.Name].refCount++
-					idRefCounter[id.Name].refBy = useScope
-				}
+			use, used := pass.TypesInfo.Uses[id]
+			if use == nil || !used {
+				// 定義情報の登録
+				appendDefinedInformation(pkgScope, idRefCounter, id)
 			}
+
+			// 参照カウントの更新
+			countReference(pkgScope, idRefCounter,use, id)
 		}
 	})
 
@@ -74,4 +60,27 @@ func detectLazyToplevelDecls(pass *analysis.Pass) (interface{}, error) {
 		}
 	}
 	return nil, nil
+}
+
+func appendDefinedInformation(pkgScope *types.Scope, idRefCounter map[types.Object]*topLevelDecl, id *ast.Ident) {
+	def := pkgScope.Lookup(id.Name)
+	if def == nil{
+		return
+	}
+
+	_, isFn := def.Type().(*types.Signature)
+	if isFn {
+		return
+	}
+
+	// 定義情報の格納
+	idRefCounter[def] = &topLevelDecl{p: def.Pos()}
+}
+
+func countReference(pkgScope *types.Scope, idRefCounter map[types.Object]*topLevelDecl, use types.Object, id *ast.Ident) {
+	usedScope := pkgScope.Innermost(id.Pos())
+	if entry, exist := idRefCounter[use]; exist && entry.refBy != usedScope {
+		idRefCounter[use].refCount++
+		idRefCounter[use].refBy = usedScope
+	}
 }
