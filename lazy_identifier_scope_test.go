@@ -9,7 +9,12 @@ import (
 
 // TestLazyIdentifierScopeAnalyzer is a test for LazyIdentifierScopeAnalyzer.
 func TestLazyIdentifierScopeAnalyzer(t *testing.T) {
-	tests := []string{"lazy_ident_scope/a", "lazy_ident_scope/nested",  "lazy_ident_scope/closure"}
+	tests := []string{
+		"lazy_ident_scope/a",
+		"lazy_ident_scope/nested",
+		"lazy_ident_scope/closure",
+		"lazy_ident_scope/in_if",
+		"lazy_ident_scope/in_for"}
 	testdata := analysistest.TestData()
 
 	for _, tt := range tests{
