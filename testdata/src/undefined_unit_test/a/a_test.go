@@ -1,9 +1,12 @@
-package a
+package a_test
 
-import "testing"
+import (
+	"testing"
+	"undefined_unit_test/a"
+)
 
 func TestF2(t *testing.T) {
-	if f2("Drum") != "f2Drum" {
+	if a.F2("Drum") != "f2Drum" {
 		t.FailNow()
 	}
 }

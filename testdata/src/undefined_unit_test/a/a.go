@@ -10,6 +10,6 @@ func f(n int) string { // want "This function's unit test is not defined"
 	}
 }
 
-func f2(s string) string { // OK
+func F2(s string) string { // OK
 	return fmt.Sprintf("f2%s", s)
 }
